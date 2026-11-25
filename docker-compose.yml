@@ -1,0 +1,135 @@
+# userbase — wdrożenie produkcyjne.
+#
+#   cp deploy/.env.example deploy/.env    # uzupełnij sekrety
+#   docker compose --env-file deploy/.env up -d --build
+#   docker compose --env-file deploy/.env exec app node scripts/db-init.cjs
+#
+# Sekrety trzymamy w plikach (Docker secrets), nie w zmiennych środowiskowych —
+# nie trafiają do `docker inspect` ani do historii powłoki.
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: userbase:latest
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      USERBASE_DB_PATH: /data/userbase.db
+      USERBASE_BACKUP_DIR: /backups
+      USERBASE_BACKUP_KEEP: "${USERBASE_BACKUP_KEEP:-14}"
+      # Ścieżki kluczy wskazują na pliki w sekretach — nie na wartości.
+      USERBASE_KEK_FILE: /run/secrets/kek
+      USERBASE_BACKUP_KEY_FILE: /run/secrets/backup_key
+      COOKIE_SECURE: "1"
+      TZ: Europe/Warsaw
+    secrets:
+      - kek
+      - backup_key
+    volumes:
+      - userbase-data:/data
+      - userbase-backups:/backups
+    # Port wystawiony tylko na localhost — ruch idzie przez Caddy.
+    ports:
+      - "127.0.0.1:3000:3000"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: false
+    tmpfs:
+      - /tmp
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Kopia zapasowa co 6 h (VACUUM INTO + szyfrowanie AES-256-GCM).
+  # Ten sam obraz, inne polecenie — brak dodatkowych zależności.
+  backup:
+    image: userbase:latest
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      USERBASE_DB_PATH: /data/userbase.db
+      USERBASE_BACKUP_DIR: /backups
+      USERBASE_BACKUP_KEEP: "${USERBASE_BACKUP_KEEP:-14}"
+      USERBASE_KEK_FILE: /run/secrets/kek
+      USERBASE_BACKUP_KEY_FILE: /run/secrets/backup_key
+      TZ: Europe/Warsaw
+    secrets:
+      - kek
+      - backup_key
+    volumes:
+      - userbase-data:/data
+      - userbase-backups:/backups
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        echo "Backup: start, co 6 h"
+        while true; do
+          node scripts/backup.cjs /backups || echo "Backup nieudany — ponowna próba za 6 h"
+          sleep 21600
+        done
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # Reverse proxy z automatycznym TLS (Let's Encrypt).
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      USERBASE_HOST: "${USERBASE_HOST:-userbase.example.com}"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+secrets:
+  kek:
+    file: ./deploy/secrets/kek
+  backup_key:
+    file: ./deploy/secrets/backup_key
+
+volumes:
+  userbase-data:
+  userbase-backups:
+  caddy-data:
+  caddy-config:

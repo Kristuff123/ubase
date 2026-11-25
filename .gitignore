@@ -1,0 +1,24 @@
+node_modules
+.next
+out
+dist
+coverage
+data
+!.gitkeep
+.env
+.env.local
+*.db
+*.db-shm
+*.db-wal
+test-results
+playwright-report
+.dev-keys
+backups
+next-env.d.ts
+.v2c
+
+# Playwright: baza testowa i artefakty porażek (nie wchodzą do repo).
+e2e/.tmp
+e2e/.artifacts
+e2e/.visual
+e2e/fixtures/tls/*.pem

@@ -1,0 +1,52 @@
+{
+  "name": "userbase",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "e2e": "playwright test",
+    "db:init": "node scripts/db-init.cjs",
+    "backup": "node scripts/backup.cjs",
+    "key:rotate-kek": "node scripts/rotate-kek.cjs",
+    "cli": "node scripts/cli.cjs",
+    "deploy:init": "node scripts/deploy-init.cjs",
+    "restore": "node scripts/restore.cjs"
+  },
+  "dependencies": {
+    "@node-rs/argon2": "^2.0.2",
+    "better-sqlite3": "^13.2.0",
+    "exceljs": "^4.4.0",
+    "next": "16.4.6",
+    "qrcode": "^1.5.4",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "@tailwindcss/turbopack": "4.3.3",
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^24",
+    "@types/qrcode": "^1.5.5",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "^5.1.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.6",
+    "jsdom": "^31.0.1",
+    "tailwindcss": "4.3.3",
+    "typescript": "^5",
+    "vitest": "^5.1.0"
+  },
+  "allowScripts": {
+    "better-sqlite3@13.2.0": true,
+    "@node-rs/argon2@2.0.2": true
+  },
+  "type": "module"
+}

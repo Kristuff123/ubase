@@ -1,0 +1,367 @@
+/*
+ * Design system userbase.
+ * Ciemny motyw bazowy w tonacji „graphite + amber" (klucze, zamki, dostęp).
+ * Wszystko na zmiennych CSS, żeby motyw jasny był jedną klasą na <html>.
+ */
+
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Menlo, monospace;
+}
+
+:root {
+  color-scheme: dark;
+
+  /* Tła */
+  --ub-bg: #0b0d12;
+  --ub-bg-elevated: #12151d;
+  --ub-bg-panel: #161a24;
+  --ub-bg-hover: #1d2230;
+  --ub-bg-input: #0e1118;
+
+  /* Obramowania */
+  --ub-border: #232936;
+  --ub-border-strong: #303848;
+  --ub-border-focus: #f0b429;
+
+  /* Tekst */
+  --ub-text: #e8ecf4;
+  --ub-text-muted: #98a2b8;
+  --ub-text-dim: #8490a5;
+
+  /* Akcent */
+  --ub-accent: #f0b429;
+  --ub-accent-text: #f0b429;
+  --ub-accent-soft: rgba(240, 180, 41, 0.14);
+  --ub-accent-strong: #ffc94a;
+  /* Kolor tekstu na tle akcentowym (przycisk główny) — musi spełniać AA 4.5:1. */
+  --ub-btn-primary-text: #17130a;
+
+  /* Statusy */
+  --ub-ok: #3ecf8e;
+  --ub-ok-soft: rgba(62, 207, 142, 0.12);
+  --ub-warn: #f5a524;
+  --ub-warn-soft: rgba(245, 165, 36, 0.12);
+  --ub-danger: #f2555a;
+  --ub-danger-soft: rgba(242, 85, 90, 0.12);
+  --ub-info: #6aa9ff;
+
+  /* Cienie */
+  --ub-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --ub-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --ub-shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.55);
+
+  --ub-radius: 10px;
+  --ub-radius-sm: 6px;
+  --ub-radius-lg: 16px;
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+  --ub-bg: #f7f8fa;
+  --ub-bg-elevated: #ffffff;
+  --ub-bg-panel: #ffffff;
+  --ub-bg-hover: #f0f2f6;
+  --ub-bg-input: #ffffff;
+  --ub-border: #e2e6ee;
+  --ub-border-strong: #ccd3e0;
+  --ub-text: #131722;
+  --ub-text-muted: #5a6478;
+  --ub-text-dim: #656e85;
+  --ub-accent: #8f5d00;
+  --ub-accent-text: #8f5d00;
+  --ub-accent-soft: rgba(184, 120, 0, 0.1);
+  --ub-accent-strong: #7a4f00;
+  --ub-btn-primary-text: #ffffff;
+  --ub-ok: #0f9d58;
+  --ub-ok-soft: rgba(15, 157, 88, 0.1);
+  --ub-danger: #d93025;
+  --ub-danger-soft: rgba(217, 48, 37, 0.1);
+  --ub-shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --ub-shadow-md: 0 8px 24px rgba(16, 24, 40, 0.08);
+  --ub-shadow-lg: 0 24px 64px rgba(16, 24, 40, 0.12);
+}
+
+* {
+  border-color: var(--ub-border);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--ub-bg);
+  color: var(--ub-text);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Delikatna siatka w tle — czytelna hierarchia bez hałasu. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    radial-gradient(circle at 15% -10%, rgba(240, 180, 41, 0.08), transparent 45%),
+    radial-gradient(circle at 85% 0%, rgba(106, 169, 255, 0.06), transparent 40%);
+}
+
+::selection {
+  background: var(--ub-accent);
+  color: #0b0d12;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ub-border-focus);
+  outline-offset: 2px;
+  border-radius: var(--ub-radius-sm);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ub-border-strong);
+  border-radius: 99px;
+  border: 2px solid var(--ub-bg);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ub-text-dim);
+}
+
+/* ---------- Komponenty ---------- */
+
+.ub-card {
+  background: var(--ub-bg-panel);
+  border: 1px solid var(--ub-border);
+  border-radius: var(--ub-radius);
+  box-shadow: var(--ub-shadow-sm);
+}
+
+.ub-panel-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ub-text-dim);
+}
+
+.ub-input {
+  width: 100%;
+  background: var(--ub-bg-input);
+  border: 1px solid var(--ub-border);
+  border-radius: var(--ub-radius-sm);
+  padding: 8px 11px;
+  color: var(--ub-text);
+  font-size: 14px;
+  transition: border-color 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+.ub-input::placeholder {
+  color: var(--ub-text-dim);
+}
+.ub-input:hover {
+  border-color: var(--ub-border-strong);
+}
+.ub-input:focus {
+  outline: none;
+  border-color: var(--ub-accent);
+  box-shadow: 0 0 0 3px var(--ub-accent-soft);
+}
+.ub-input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.ub-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ub-text-muted);
+  margin-bottom: 5px;
+}
+
+.ub-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: var(--ub-radius-sm);
+  border: 1px solid transparent;
+  padding: 7px 13px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 80ms ease, color 120ms ease;
+  white-space: nowrap;
+  user-select: none;
+}
+.ub-btn:active {
+  transform: translateY(1px);
+}
+.ub-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.ub-btn-primary {
+  background: var(--ub-accent);
+  color: var(--ub-btn-primary-text);
+  font-weight: 600;
+}
+.ub-btn-primary:hover:not(:disabled) {
+  background: var(--ub-accent-strong);
+}
+
+.ub-btn-secondary {
+  background: var(--ub-bg-hover);
+  border-color: var(--ub-border-strong);
+  color: var(--ub-text);
+}
+.ub-btn-secondary:hover:not(:disabled) {
+  background: var(--ub-border);
+}
+
+.ub-btn-ghost {
+  background: transparent;
+  color: var(--ub-text-muted);
+}
+.ub-btn-ghost:hover:not(:disabled) {
+  background: var(--ub-bg-hover);
+  color: var(--ub-text);
+}
+
+.ub-btn-danger {
+  background: var(--ub-danger-soft);
+  border-color: rgba(242, 85, 90, 0.35);
+  color: var(--ub-danger);
+}
+.ub-btn-danger:hover:not(:disabled) {
+  background: rgba(242, 85, 90, 0.2);
+}
+
+.ub-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid var(--ub-border-strong);
+  background: var(--ub-bg-hover);
+  color: var(--ub-text-muted);
+}
+.ub-chip-accent {
+  border-color: rgba(240, 180, 41, 0.35);
+  background: var(--ub-accent-soft);
+  color: var(--ub-accent-text);
+}
+.ub-chip-ok {
+  border-color: rgba(62, 207, 142, 0.3);
+  background: var(--ub-ok-soft);
+  color: var(--ub-ok);
+}
+.ub-chip-warn {
+  border-color: rgba(245, 165, 36, 0.3);
+  background: var(--ub-warn-soft);
+  color: var(--ub-warn);
+}
+.ub-chip-danger {
+  border-color: rgba(242, 85, 90, 0.3);
+  background: var(--ub-danger-soft);
+  color: var(--ub-danger);
+}
+
+.ub-mono {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  letter-spacing: -0.01em;
+}
+
+.ub-row-hover {
+  transition: background 100ms ease;
+}
+.ub-row-hover:hover {
+  background: var(--ub-bg-hover);
+}
+
+.ub-divide > * + * {
+  border-top: 1px solid var(--ub-border);
+}
+
+/* Animacje wejścia */
+@keyframes ub-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.ub-fade-in {
+  animation: ub-fade-in 180ms ease-out both;
+}
+
+@keyframes ub-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.ub-slide-in {
+  animation: ub-slide-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes ub-pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(240, 180, 41, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(240, 180, 41, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(240, 180, 41, 0);
+  }
+}
+.ub-pulse {
+  animation: ub-pulse-ring 1.6s ease-out infinite;
+}
+
+@keyframes ub-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.ub-spin {
+  animation: ub-spin 800ms linear infinite;
+}
+
+/* Dostępność: ograniczenie animacji */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

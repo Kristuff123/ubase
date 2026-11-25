@@ -1,0 +1,16 @@
+node_modules
+.next
+.git
+.gitignore
+data
+backups
+tests
+coverage
+playwright-report
+test-results
+docs
+*.md
+!README.md
+.v2c
+next-env.d.ts
+tsconfig.tsbuildinfo

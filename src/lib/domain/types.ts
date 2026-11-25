@@ -19,6 +19,7 @@ export type FieldDef = {
   required?: boolean;
   secret?: boolean;
   placeholder?: string;
+  defaultValue?: string;
   options?: string[];
   unitType?: "region" | "zaklad" | "sklep" | "biuro";
   showWhen?: Record<string, string[]>;

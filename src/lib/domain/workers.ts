@@ -19,6 +19,7 @@ import {
 } from "./org";
 import type {
   Access,
+  AccessCategory,
   AccessFieldValue,
   AccessView,
   FieldSchema,
@@ -275,6 +276,23 @@ function validateValues(schema: FieldSchema, values: Record<string, string | str
   return out;
 }
 
+/** Starsze wpisy bez formatu zachowują dotychczasową interpretację numeru. */
+function validateChipNumber(category: AccessCategory, values: Record<string, string[]>): void {
+  if (category.slug !== "chip") return;
+  const format = values.number_format ?? [];
+  if (format.length === 0) return;
+  if (format.length !== 1 || !["dziesiętnie", "szesnastkowo"].includes(format[0])) {
+    throw new Error("Nieprawidłowy format numeru chipa");
+  }
+  const numbers = values.number ?? [];
+  const pattern = format[0] === "szesnastkowo" ? /^[0-9a-f]+$/i : /^[0-9]+$/;
+  if (numbers.length !== 1 || !pattern.test(numbers[0])) {
+    throw new Error(format[0] === "szesnastkowo"
+      ? "Format szesnastkowy numeru chipa wymaga znaków 0–9 i A–F"
+      : "Format dziesiętny numeru chipa wymaga wyłącznie cyfr 0–9");
+  }
+}
+
 function insertFields(
   db: Db,
   params: { workerId: number; accessId: number; schema: FieldSchema; values: Record<string, string[]> },
@@ -369,6 +387,7 @@ export function addAccess(
   const schema = parseSchema(category);
   const isOther = category.slug === "inne";
   const values = validateValues(schema, input.values);
+  validateChipNumber(category, values);
 
   if (isOther) {
     const title = input.title?.trim();
@@ -423,6 +442,7 @@ export function updateAccess(
   if (!category) throw new Error("Kategoria dostępu nie istnieje");
   const schema = parseSchema(category);
   const values = validateValues(schema, input.values);
+  validateChipNumber(category, values);
 
   // Pola sekretne z sentinelem zachowują stary szyfrogram — wyciągamy je przed walidacją zapisu.
   const keptKeys = new Set(

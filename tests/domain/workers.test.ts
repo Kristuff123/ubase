@@ -149,6 +149,31 @@ describe("dostępy", () => {
     expect(levelField.values.sort()).toEqual(["alarm", "biura", "piekarnia"]);
   });
 
+  it("zapisuje numer chipa zeskanowany w formacie szesnastkowym", () => {
+    const worker = makeWorker();
+    const chip = getCategoryBySlug(db, "chip")!;
+    addAccess(db, worker.id, {
+      categoryId: chip.id,
+      values: { number: "04A1B2C3", number_format: "szesnastkowo", level: ["alarm"] },
+    }, actor);
+    const detail = getWorkerDetail(db, worker.id)!;
+    expect(detail.accesses[0].fields.find((field) => field.key === "number")?.values).toEqual(["04A1B2C3"]);
+    expect(detail.accesses[0].fields.find((field) => field.key === "number_format")?.values).toEqual(["szesnastkowo"]);
+  });
+
+  it("odrzuca znaki spoza wybranego formatu numeru chipa", () => {
+    const worker = makeWorker();
+    const chip = getCategoryBySlug(db, "chip")!;
+    expect(() => addAccess(db, worker.id, {
+      categoryId: chip.id,
+      values: { number: "12G4", number_format: "szesnastkowo", level: ["alarm"] },
+    }, actor)).toThrow(/format.*szesnastkowy/i);
+    expect(() => addAccess(db, worker.id, {
+      categoryId: chip.id,
+      values: { number: "12A4", number_format: "dziesiętnie", level: ["alarm"] },
+    }, actor)).toThrow(/format.*dziesiętny/i);
+  });
+
   it("odrzuca nieprawidłowy poziom chipa", () => {
     const worker = makeWorker();
     const chip = getCategoryBySlug(db, "chip")!;

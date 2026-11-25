@@ -104,7 +104,7 @@ export function AccessFormDialog({
     // Pole wymagane, ukryte przez showWhen, nie powinno blokować zapisu.
     const payloadValues: Values = {};
     for (const field of visible) {
-      payloadValues[field.key] = values[field.key] ?? (field.type === "multiselect" ? [] : "");
+      payloadValues[field.key] = values[field.key] || field.defaultValue || (field.type === "multiselect" ? [] : "");
     }
 
     setBusy(true);
@@ -210,7 +210,7 @@ export function AccessFormDialog({
           )}
 
           {visible.map((field) => {
-            const raw = values[field.key];
+            const raw = values[field.key] || field.defaultValue;
             const text = Array.isArray(raw) ? raw.join(", ") : (raw ?? "");
             const id = `acc-${field.key}`;
 
@@ -261,7 +261,7 @@ export function AccessFormDialog({
                     onChange={(event) => setValue(field.key, event.target.value)}
                     className="ub-input"
                   >
-                    <option value="">— wybierz —</option>
+                    {!field.defaultValue && <option value="">— wybierz —</option>}
                     {(field.options ?? []).map((option) => (
                       <option key={option} value={option}>
                         {option}
@@ -332,6 +332,8 @@ export function AccessFormDialog({
 
             const isSecret = Boolean(field.secret || field.type === "password");
             const kept = text === KEEP_SECRET;
+            const isChipNumber = category.slug === "chip" && field.key === "number";
+            const isHex = values.number_format === "szesnastkowo";
 
             return (
               <div key={field.key}>

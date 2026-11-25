@@ -125,6 +125,36 @@ test.describe("pracownicy", () => {
     await expect(page.getByText("bClient — Sklep Centrum")).toBeVisible();
   });
 
+  test("numer chipa przyjmuje odczyt czytnika w obu formatach i zachowuje go przy edycji", async ({ page }) => {
+    await page.goto("/pracownicy/1");
+    await page.getByRole("button", { name: /Dodaj dostęp/ }).click();
+    const dialog = page.getByRole("dialog", { name: "Nowy dostęp" });
+    await dialog.locator("#acc-cat").selectOption({ label: "Chip" });
+    await expect(dialog.getByLabel("Format numeru chipa")).toHaveValue("dziesiętnie");
+    await dialog.locator("#acc-title").fill("Chip — czytnik testowy");
+    await dialog.getByLabel("Format numeru chipa").selectOption("szesnastkowo");
+    const number = dialog.getByLabel("Numer chipa", { exact: true });
+    await number.pressSequentially("04A1B2C3");
+    await number.press("Enter");
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole("button", { name: "alarm", exact: true }).click();
+    await dialog.getByRole("button", { name: "Dodaj dostęp", exact: true }).click();
+    await expect(dialog).toBeHidden();
+    const card = page.locator("article", { hasText: "Chip — czytnik testowy" });
+    await expect(card.getByText("04A1B2C3", { exact: true })).toBeVisible();
+    await expect(card.getByText("szesnastkowo", { exact: true })).toBeVisible();
+    await card.getByRole("button", { name: "Edytuj dostęp" }).click();
+    const edit = page.getByRole("dialog", { name: "Edycja dostępu" });
+    await expect(edit.getByLabel("Format numeru chipa")).toHaveValue("szesnastkowo");
+    await expect(edit.getByLabel("Numer chipa", { exact: true })).toHaveValue("04A1B2C3");
+    await edit.getByLabel("Format numeru chipa").selectOption("dziesiętnie");
+    await edit.getByLabel("Numer chipa", { exact: true }).fill("0001234567");
+    await edit.getByRole("button", { name: "Zapisz zmiany", exact: true }).click();
+    await expect(edit).toBeHidden();
+    await expect(card.getByText("0001234567", { exact: true })).toBeVisible();
+    await expect(card.getByText("dziesiętnie", { exact: true })).toBeVisible();
+  });
+
   test("archiwizacja przenosi pracownika i pozwala przywrócić", async ({ page }) => {
     await page.goto("/pracownicy/1");
     page.once("dialog", (dialog) => void dialog.accept());

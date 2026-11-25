@@ -39,6 +39,11 @@ describe("migracje i dane startowe", () => {
 
     const chip = categories.find((c) => c.slug === "chip")!;
     const schema = parseSchema(chip);
+    const numberFormat = schema.find((f) => f.key === "number_format")!;
+    expect(numberFormat.type).toBe("select");
+    expect(numberFormat.options).toEqual(["dziesiętnie", "szesnastkowo"]);
+    expect(numberFormat.defaultValue).toBe("dziesiętnie");
+
     const level = schema.find((f) => f.key === "level")!;
     expect(level.type).toBe("multiselect");
     expect(level.options).toEqual(["piekarnia", "cukiernia", "biura", "pierogarnia", "alarm"]);
